@@ -3,109 +3,308 @@ import 'package:provider/provider.dart';
 import '../providers/bolsa_provider.dart';
 import '../models/buscas.dart';
 
-class PageOne  extends StatefulWidget{ //classe que representa a tela de busca
-
-  @override // poliformismo para criar o estado da tela
-  _PageOneState createState() => _PageOneState(); // cria o estado da tela que será usado para controlar a tela
+class _AppColors {
+  static const background    = Color(0xFF0D1117);
+  static const surface       = Color(0xFF161B22);
+  static const card          = Color(0xFF1C2333);
+  static const accent        = Color(0xFFF78166);
+  static const accentDark    = Color(0xFFBF3600);
+  static const accentMuted   = Color(0xFF3D1A0A);
+  static const textPrimary   = Color(0xFFE6EDF3);
+  static const textSecondary = Color(0xFF8B949E);
+  static const border        = Color(0xFF30363D);
 }
 
-class _PageOneState extends State<PageOne> { // classe que representa o estado da tela de busca
-   final TextEditingController _textController = TextEditingController(); // controlador de texto para o campo de busca
-   final ScrollController _scrollController = ScrollController(); // controlador de scroll para a lista de resultados
-
- GetBuscas _tipoBuscaSelecionado = GetBuscas.nomeFavorecido; // variavel que controla o tipo de busca selecionado
+class PageOne extends StatefulWidget {
+  const PageOne({super.key});
 
   @override
-  void initState() { // metodo que inicializa o estado da tela
-    super.initState(); // chama o metodo super para inicializar o estado da tela
-    // Listener de scroll: quando o usuário chega perto do fim da lista, carrega mais itens
-    _scrollController.addListener(() { // metodo que adiciona um listener ao scroll para carregar mais itens
-      final pos = _scrollController.position; // posição do scroll
-      if (pos.pixels >= pos.maxScrollExtent - 200) { // verifica se o usuário chegou perto do fim da lista
-        context.read<BolsaProvider>().carregarMais(); // carrega mais itens
+  State<PageOne> createState() => _PageOneState();
+}
+
+class _PageOneState extends State<PageOne> {
+  final TextEditingController _textController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+
+  GetBuscas _tipoBuscaSelecionado = GetBuscas.nomeFavorecido;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(() {
+      final pos = _scrollController.position;
+      if (pos.pixels >= pos.maxScrollExtent - 200) {
+        context.read<BolsaProvider>().carregarMais();
       }
     });
-  } // fim do metodo initState
+  }
+
+  InputDecoration _inputDecoration({required String label, Widget? suffix}) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: const TextStyle(color: _AppColors.textSecondary),
+      suffixIcon: suffix,
+      filled: true,
+      fillColor: _AppColors.surface,
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: _AppColors.border),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: _AppColors.accent, width: 2),
+      ),
+    );
+  }
 
   @override
-  Widget build(BuildContext context){ // metodo que constrói a tela de busca
-    final provider = context.watch<BolsaProvider>(); // contexto que observa o provider de busca para atualizar a tela
+  Widget build(BuildContext context) {
+    final provider = context.watch<BolsaProvider>();
 
-    return Scaffold( // tela de busca com appBar e body
-      appBar: AppBar( title:  const Text("Bolsa Familia 👀")), // appBar com titulo fixo
-      body: Column( // body com coluna para organizar os elementos da tela
-        children: [ // lista de elementos da tela
-          Padding(padding:  const EdgeInsets.all(8.0), //  padding para criar um espaçamento entre os elementos da tela
-          child: Row( // linha para organizar os elementos da tela
-            children: [ // lista de elementos da linha
-              Expanded(flex: 2, // elemento que ocupa 2/3 da linha
-              child: DropdownButtonFormField<GetBuscas>( // dropdown para selecionar o tipo de busca
-                initialValue: _tipoBuscaSelecionado, // valor inicial do dropdown
-                decoration: const InputDecoration( // decoração do dropdown
-                  labelText: "Tipo de Busca", // label do dropdown que mostra o tipo de busca selecionado
-                  border: OutlineInputBorder(), // borda do dropdown
-                  ),
-                  items: GetBuscas.values.map((tipo){ // lista de itens do dropdown
-                    return DropdownMenuItem(value: tipo, // item do dropdown
-                    child:  Text(tipo.label), // texto do item do dropdown
-                    );
-                  }).toList(), // lista de itens do dropdown
-                  onChanged: (novoGetBusca){ // metodo que atualiza o tipo de busca selecionado
-                    if (novoGetBusca != null){ // verifica se o novo tipo de busca é diferente de null
-                      setState(() { // atualiza o tipo de busca selecionado
-                        _tipoBuscaSelecionado = novoGetBusca; // atualiza o tipo de busca selecionado
-                      });
-                    }
-                  },
+    return Scaffold(
+      backgroundColor: _AppColors.background,
+      appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF1C2333), Color(0xFF0D1117)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(height: 1, color: _AppColors.border),
+        ),
+        title: const Row(
+          children:[
+            Icon(Icons.savings_outlined, color: _AppColors.accent, size: 22),
+            SizedBox(width: 8),
+            Text(
+              "Bolsa Família",
+              style: TextStyle(
+                color: _AppColors.textPrimary,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                letterSpacing: 0.4,
               ),
-              ),
-               const SizedBox(width: 8), // espaçamento entre os elementos da linha
-              Expanded( // é um widget que ocupa o espaço restante da linha
-                flex: 3, // elemento que ocupa 3/3 da linha
-                child: TextField( // campo de texto para digitar a busca
-                  controller: _textController, // controlador de texto para o campo de busca
-                  decoration: InputDecoration( // decoração do campo de texto
-                    labelText: "Escreva aqui!", // label do campo de texto
-                    suffixIcon: IconButton( // botão de busca
-                      icon:  const Icon(Icons.search), // ícone do botão de busca
-                      onPressed: () => provider.novaBusca( // metodo que faz a busca
-                        _textController.text, // texto do campo de busca
-                        _tipoBuscaSelecionado, // tipo de busca selecionado
-                        ),
-                    ),
-                    border:  const OutlineInputBorder(), // borda do campo de texto
+            ),
+          ],
+        ),
+      ),
+      body: Column(
+        children: [
+          // Barra de busca
+          Container(
+            margin: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: _AppColors.card,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: _AppColors.border),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.5),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: DropdownButtonFormField<GetBuscas>(
+                    initialValue: _tipoBuscaSelecionado,
+                    dropdownColor: _AppColors.surface,
+                    style: const TextStyle(color: _AppColors.textPrimary, fontSize: 14),
+                    iconEnabledColor: _AppColors.accent,
+                    decoration: _inputDecoration(label: "Tipo de Busca"),
+                    items: GetBuscas.values.map((tipo) {
+                      return DropdownMenuItem(
+                        value: tipo,
+                        child: Text(tipo.label),
+                      );
+                    }).toList(),
+                    onChanged: (novoGetBusca) {
+                      if (novoGetBusca != null) {
+                        setState(() => _tipoBuscaSelecionado = novoGetBusca);
+                      }
+                    },
                   ),
                 ),
+                const SizedBox(width: 8),
+                Expanded(
+                  flex: 3,
+                  child: TextField(
+                    controller: _textController,
+                    style: const TextStyle(color: _AppColors.textPrimary, fontSize: 14),
+                    cursorColor: _AppColors.accent,
+                    decoration: _inputDecoration(
+                      label: "Escreva aqui...",
+                      suffix: Container(
+                        margin: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [_AppColors.accent, _AppColors.accentDark],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.search, color: Colors.white, size: 20),
+                          onPressed: () => provider.novaBusca(
+                            _textController.text,
+                            _tipoBuscaSelecionado,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Contador de resultados
+          if (provider.lista.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: Row(
+                children: [
+                  const Icon(Icons.people_alt_outlined,
+                      size: 14, color: _AppColors.textSecondary),
+                  const SizedBox(width: 4),
+                  Text(
+                    "${provider.lista.length} resultado(s) encontrado(s)",
+                    style: const TextStyle(
+                      color: _AppColors.textSecondary,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          ),
-          Expanded(child: ListView.builder( // lista de resultados
-            controller: _scrollController, // controlador de scroll para a lista de resultados
-            itemCount: provider.lista.length + (provider.isLoading ? 1:0), // quantidade de itens na lista
-            itemBuilder: (context, index){ // metodo que constrói cada item da lista
-              if(index < provider.lista.length){ // verifica se o índice é menor que a quantidade de itens na lista
-                final item = provider.lista[index]; // item da lista
-                return ListTile( // item da lista
-                  leading: CircleAvatar(child: Text(item.uf ?? "")), // ícone do item da lista
-                  title: Text(item.nomeFavorecido ?? ""), // titulo do item da lista
-                  subtitle: Text( // subtitulo do item da lista
-                    "${item.nomeMunicipio} - NIS: ${item.nisFavorecido}"), // texto do subtitulo do item da lista
-                    trailing: Text("R\$ ${item.valorParcela}"), // texto do trailing do item da lista
+            ),
+
+          // Lista de resultados
+          Expanded(
+            child: ListView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+              itemCount: provider.lista.length + (provider.isLoading ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (index < provider.lista.length) {
+                  return _BeneficiarioCard(item: provider.lista[index]);
+                }
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      color: _AppColors.accent,
+                      strokeWidth: 2.5,
+                    ),
+                  ),
                 );
-              } else{ // se o índice não for menor que a quantidade de itens na lista
-                return const Center(child: CircularProgressIndicator()); // mostra um loading na tela
-              }
-            },
-          ),
+              },
+            ),
           ),
         ],
       ),
     );
   }
-  @override // sobreescreve o metodo dispose para liberar o controlador de scroll
-    void dispose(){ // metodo que libera o controlador de scroll
-      _scrollController.dispose(); // libera o controlador de scroll
-      super.dispose(); // libera o controlador de texto
-    }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _textController.dispose();
+    super.dispose();
+  }
+}
+
+class _BeneficiarioCard extends StatelessWidget {
+  final dynamic item;
+
+  const _BeneficiarioCard({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: _AppColors.card,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: _AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.35),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        leading: Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [_AppColors.accent, _AppColors.accentDark],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Center(
+            child: Text(
+              item.uf ?? "?",
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+              ),
+            ),
+          ),
+        ),
+        title: Text(
+          item.nomeFavorecido ?? "",
+          style: const TextStyle(
+            color: _AppColors.textPrimary,
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+          ),
+        ),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 3),
+          child: Text(
+            "${item.nomeMunicipio ?? ""} · NIS: ${item.nisFavorecido ?? ""}",
+            style: const TextStyle(
+              color: _AppColors.textSecondary,
+              fontSize: 12,
+            ),
+          ),
+        ),
+        trailing: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: _AppColors.accentMuted,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: _AppColors.accent.withValues(alpha: 0.45)),
+          ),
+          child: Text(
+            "R\$ ${item.valorParcela ?? "0"}",
+            style: const TextStyle(
+              color: _AppColors.accent,
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
