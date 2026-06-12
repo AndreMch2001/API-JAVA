@@ -1,0 +1,5 @@
+# Copie este arquivo para "application-local.properties" e preencha com suas credenciais reais.
+# O arquivo application-local.properties NÃO é versionado (está no .gitignore).
+spring.datasource.url=jdbc:postgresql://localhost:5432/postgres
+spring.datasource.username=SEU_USUARIO
+spring.datasource.password=SUA_SENHA
