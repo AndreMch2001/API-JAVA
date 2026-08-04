@@ -305,7 +305,7 @@ Na pasta [`HelpForUs/`](HelpForUs/) há explicações **passo a passo e para ini
 
 Projeto desenvolvido como trabalho de final de semestre do curso de **Análise e Desenvolvimento de Sistemas (ADS)**.
 
-> 💡 Liste aqui os integrantes do grupo e seus perfis no GitHub.
+> 💡 @AndreMch2001
 
 ---
 
